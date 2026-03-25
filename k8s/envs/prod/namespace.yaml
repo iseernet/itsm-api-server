@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pbd-services
+  labels:
+    name: pbd-services
+    environment: production
+    project: itsm-api-server

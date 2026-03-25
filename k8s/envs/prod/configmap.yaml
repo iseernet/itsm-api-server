@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: itsm-api-server-prod-config
+  namespace: pbd-services
+  labels:
+    app: itsm-api-server-prod
+    environment: production
+data:
+  # 应用配置
+  NODE_ENV: "production"
+  PORT: "3000"
+  SERVER_PORT: "3000"
+
+  # 数据库配置（生产环境）
+  DB_HOST: "10.137.208.28"
+  DB_PORT: "5432"
+  DB_NAME: "itsm_db"
+
+  # DB2 配置（第二个数据库）
+  # 注意：DB2_USER 和 DB2_PASSWORD 在 Secret 中配置
+  DB2_HOST: "10.137.208.28"
+  DB2_PORT: "5432"
+  DB2_NAME: "monitor_pt"
+
+  # Redis 配置
+  # 注意：REDIS_PASSWORD 在 Secret 中配置
+  REDIS_HOST: "10.137.208.22"
+  REDIS_PORT: "6380"
+  REDIS_DB: "10"
+
+  # Jira 配置（生产环境）
+  JIRA_BASE_URL: "http://10.137.208.69:8080"
+  JIRA_PROJECT_KEY: "PBDITSM"
+  JIRA_USER_RN: "rn-prod"
+  JIRA_USER_ALARM: "alarm-prod"
+  JIRA_USER_ONSITE_OPS: "onsite-ops-prod"
+  JIRA_USER_ONCALL_OPS: "oncall-ops-prod"
+  JIRA_ROLE: "Service Desk Team"
+
+  # Jira 自定义字段 ID（生产环境）
+  jira_alarmId: "customfield_10211"
+  jira_service: "customfield_10222"
+  jira_impactLevel: "customfield_10202"
+  jira_authorizedChangeContent: "customfield_10200"
+  jira_relativeIssueId: "customfield_10208"
+  jira_snCode: "customfield_10209"
+  jira_isDown: "customfield_10203"
+  jira_relatedSN: "customfield_10207"
+  jira_syncToCustomer: "customfield_10210"
+  jira_maintenanceOperation: "customfield_10206"
+  jira_operationPermissions: "customfield_10205"
+  jira_estimatedStartDate: "customfield_10201"
+  jira_rackID: "customfield_10220"
+  jira_dueAt: "customfield_10216"
+  jira_bootType: "customfield_10214"
+  jira_cleanDataDisk: "customfield_10215"
+  jira_os: "customfield_10219"
+  jira_authorized: "customfield_10212"
+  jira_authorizedAt: "customfield_10213"
+  jira_serverSn: "customfield_10403"
+  jira_networkSn: "customfield_10218"
+  jira_faultType: "customfield_10217"
+  jira_rnTicketId: "customfield_10300"
+  jira_relatedComponents: "customfield_10301"
+  jira_idcSubType: "customfield_10400"
+  jira_newSn: "customfield_10401"
+  jira_networkDevice: "customfield_10402"
+  jira_postmortem_is_gpu_down: "customfield_10506"
+  jira_postmortem_server_sn: "customfield_10508"
+  jira_postmortem_need_log: "customfield_10507"
+  jira_postmortem_time: "customfield_10513"
+  jira_collect_log_time: "customfield_10509"
+  jira_collect_log_upload_image: "customfield_10501"
+  jira_fault_start_time: "customfield_10502"
+  jira_fault_start_time_upload_image: "customfield_10503"
+  jira_fault_end_time: "customfield_10504"
+  jira_fault_end_time_upload_image: "customfield_10505"
+  jira_manual_confirm_resolved_time: "customfield_10514"
+  jira_manual_confirm_resolved_upload_image: "customfield_10515"
+  jira_order_response_time: "customfield_10516"
+  jira_pbd_finish_time: "customfield_10517"
+  jira_rn_confirm_resolved_time: "customfield_10518"
+  jira_rn_fault_id: "customfield_10520"
+  jira_isNetworkEffectServer: "customfield_10519"
+  jira_postmortem_fault_type: "customfield_10521"
+  jira_postmortem_maintenance_operation: "customfield_10522"
+  jira_pbd_finish_timestamp: "customfield_10523"
+  jira_confirm_resolved_timestamp: "customfield_10524"
+
+  # JWT 配置（生产环境）
+  JWT_ACCESS_TOKEN_EXPIRES_IN: "1d"
+  JWT_REFRESH_TOKEN_EXPIRES_IN: "7d"
+
+  # 验签配置
+  ALLOWED_TIME_DRIFT_MS: "300000"
+
+  # 上传文件配置
+  UPLOAD_DIR: "uploads/"
+
+  # RN 配置（生产环境）
+  RN_API_URL: "https://dcoc.devops.xiaohongshu.com"
+  RN_API_SECRET_ID: "HWRIS_OPEN_API_PBD"
+  RN_API_ENABLED: "1"
+
+  # Feishu 配置（生产环境）
+  FEISHU_APP_ID: "cli_a83b9180263b501c"
+  FEISHU_API_URL: "https://open.feishu.cn/open-apis"
+  FEISHU_MESSAGE_ISSUE_URL: "https://10.137.208.39/eventDetail/"
+  FEISHU_MESSAGE_IDC_ISSUE_URL: "https://10.137.208.39/idcTicketDetail/"
+  FEISHU_ROBOT_NOTIFICATION: "https://open.feishu.cn/open-apis/bot/v2/hook/61ca2f0f-413e-4799-8b4c-3488d822a79e"
+
+  # PBD Alert 配置（生产环境）
+  PBD_ALERT_BASE_URL: "http://10.137.208.200:8081/api/v1"

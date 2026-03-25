@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 命名空间
+namespace: pbd-test
+
+# K8s 资源文件
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  # - secret.yaml  # 需要先创建 secret.yaml（从 secret.yaml.example 复制并填写真实密钥）
+
+# 通用标签
+commonLabels:
+  app: itsm-api-server-test
+  environment: test
+  project: itsm-api-server
+
+# 镜像配置
+images:
+  - name: 10.137.208.6:19800/pbdcommon/itsm-api-server-test
+    newTag: v1.0.0  # 这个会在部署时自动更新

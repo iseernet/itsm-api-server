@@ -1,0 +1,22 @@
+services:
+  jira:
+    image: atlassian/jira-servicemanagement:10.4.1
+    container_name: jira_service_management_prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/jira/data:/var/atlassian/application-data/jira
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - JVM_MAXIMUM_MEMORY=8192m
+      - JVM_MINIMUM_MEMORY=2048m      
+      - JIRA_DATABASE_URL=jdbc:postgresql://10.137.208.28:5432/jiradb
+      - JIRA_DATABASE_USERNAME=${JIRA_DB_USER}
+      - JIRA_DATABASE_PASSWORD=${JIRA_DB_PASSWORD}
+      - JIRA_PORT=8080
+    networks:
+      - jira_net
+networks:
+  jira_net:
+    driver: bridge

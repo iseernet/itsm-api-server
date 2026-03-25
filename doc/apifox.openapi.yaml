@@ -1,0 +1,3370 @@
+openapi: 3.0.3
+info:
+  title: ITSM API Server
+  description: |
+    由代码路由自动整理的 OpenAPI 3.0 文档，可直接导入 Apifox。
+
+    鉴权说明：
+    - 后台接口通常同时要求：
+      - JWT：`Authorization: Bearer <token>`
+      - 签名：`timestamp`、`nonce`、`signature`，以及 `appkey`（或兼容老头 `client-id`）
+    - OpenAPI 对外接口（`/open/*`）要求：
+      - `client-id` + `timestamp`、`nonce`、`signature`
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: Health
+  - name: Auth
+  - name: Jira
+  - name: Orders
+  - name: Issues
+  - name: IDC Issues
+  - name: OpenAPI
+  - name: Users
+  - name: Services
+  - name: Priorities
+  - name: Menus
+  - name: Roles
+  - name: Groups
+  - name: Service Categories
+  - name: SLA Rules
+  - name: SLA Days
+  - name: Service Fault Types
+  - name: Final Service Fault Types
+  - name: Alerts
+  - name: Downtime Records
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /oauth/login:
+    post:
+      tags: [Auth]
+      summary: 登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: 登录结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/refresh:
+    post:
+      tags: [Auth]
+      summary: 刷新 Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: 刷新结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/logout:
+    post:
+      tags: [Auth]
+      summary: 登出
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: 登出结果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/token:
+    post:
+      tags: [Auth]
+      summary: 获取/兑换 Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/protected:
+    get:
+      tags: [Auth]
+      summary: 受保护测试接口
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/admin-only:
+    get:
+      tags: [Auth]
+      summary: 仅管理员接口
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /oauth/getUserPermissions:
+    post:
+      tags: [Auth]
+      summary: 获取用户权限（需要签名）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /api/jira/test:
+    post:
+      tags: [Jira]
+      summary: Jira 测试
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /api/jira/list:
+    post:
+      tags: [Jira]
+      summary: Jira 列表
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /api/order/getOrders:
+    post:
+      tags: [Orders]
+      summary: 获取订单（签名 + JWT）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /api/order/getOrdersNoSign:
+    post:
+      tags: [Orders]
+      summary: 获取订单（仅 JWT）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue:
+    get:
+      tags: [Issues]
+      summary: 工单列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: query
+          name: pageIndex
+          schema: { type: integer, minimum: 1, default: 1 }
+          description: 页码（默认 1）
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, default: 10 }
+          description: 每页条数（默认 10）
+        - in: query
+          name: issuetype
+          schema: { type: string }
+          description: 工单类型（如 issue / idc 等）
+        - in: query
+          name: key
+          schema: { type: string }
+          description: 按 Jira Key 查询
+        - in: query
+          name: status
+          schema: { type: string }
+          description: 状态（如 PBD-INPRORESS / PBD-CLOSED 等）
+        - in: query
+          name: assignee
+          schema: { type: string }
+          description: 处理人（用户名）
+        - in: query
+          name: reporter
+          schema: { type: string }
+          description: 提单人（支持 rn / alarm 别名，服务端会映射到真实用户）
+        - in: query
+          name: service
+          schema: { type: string }
+          description: 服务类型（SERVER / NETWORK / RACK 等）
+        - in: query
+          name: priority
+          schema: { type: string }
+          description: 优先级
+        - in: query
+          name: impactLevel
+          schema: { type: string }
+          description: 影响等级
+        - in: query
+          name: relativeIssueId
+          schema: { type: string }
+          description: 关联工单 ID
+        - in: query
+          name: alarmId
+          schema: { type: string }
+          description: 告警 ID
+        - in: query
+          name: rnTicketId
+          schema: { type: string }
+          description: RN 工单 ID
+        - in: query
+          name: text
+          schema: { type: string }
+          description: 关键字（服务端透传给查询）
+        - in: query
+          name: createdDateStart
+          schema: { type: string }
+          description: 创建时间起（字符串，格式由调用方约定）
+        - in: query
+          name: createdDateEnd
+          schema: { type: string }
+          description: 创建时间止（字符串，格式由调用方约定）
+        - in: query
+          name: isFromPBD
+          schema: { type: string, enum: ["true", "false", "1", "0", "yes", "no"] }
+          description: 是否来自 PBD（服务端会做 bool 解析）
+        - in: query
+          name: authorizationStatus
+          schema: { type: string }
+          description: 授权状态（透传）
+        - in: query
+          name: isRnFault
+          schema: { type: string }
+          description: 是否 RN 故障（透传）
+        - in: query
+          name: authPermissionStatus
+          schema: { type: string }
+          description: 权限状态（透传）
+        - in: query
+          name: fields
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items: { type: string }
+          description: 指定需要返回的字段（string 或 string[]，透传）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Issues]
+      summary: 创建工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueCreateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}:
+    get:
+      tags: [Issues]
+      summary: 工单详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [Issues]
+      summary: 更新工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueUpdateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Issues]
+      summary: 删除工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}/assign:
+    post:
+      tags: [Issues]
+      summary: 分配工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueAssignRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}/change-state:
+    post:
+      tags: [Issues]
+      summary: 变更工单状态
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueChangeStateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}/relatedIssues:
+    get:
+      tags: [Issues]
+      summary: 获取关联工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+        - in: query
+          name: pageIndex
+          schema: { type: integer, minimum: 1, default: 1 }
+          description: 页码（默认 1）
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, default: 10 }
+          description: 每页条数（默认 10）
+        - in: query
+          name: issuetype
+          schema: { type: string }
+          description: 关联工单类型（透传）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}/relatedMyIssues:
+    get:
+      tags: [Issues]
+      summary: 获取关联我的工单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+        - in: query
+          name: pageIndex
+          schema: { type: integer, minimum: 1, default: 1 }
+          description: 页码（默认 1）
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, default: 10 }
+          description: 每页条数（默认 10）
+        - in: query
+          name: issuetype
+          schema: { type: string }
+          description: 关联工单类型（透传）
+        - in: query
+          name: status
+          schema: { type: string }
+          description: 状态过滤（透传）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/export:
+    post:
+      tags: [Issues]
+      summary: 导出工单（返回 xlsx）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueExportRequest"
+      responses:
+        "200":
+          description: Excel 文件
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: 参数错误（如 fields 为空或包含非法字段）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/upload-files:
+    post:
+      tags: [Issues]
+      summary: 上传附件（multipart）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [issueIdOrKey, files]
+              properties:
+                issueIdOrKey:
+                  type: string
+                  description: 目标工单 idOrKey（必填）
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{issueIdOrKey}/comments:
+    get:
+      tags: [Issues]
+      summary: 评论列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: pageIndex
+          schema: { type: integer, minimum: 1, default: 1 }
+          description: 页码（默认 1）
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, default: 10 }
+          description: 每页条数（默认 10）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Issues]
+      summary: 创建评论（可带附件）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                commentBody:
+                  type: string
+                  description: 评论内容（可选）
+                updatePermission:
+                  type: string
+                  description: 是否更新 RN 权限（传 "1" 表示更新）
+                  example: "1"
+                updateStatus:
+                  type: string
+                  description: 可选，同时更新工单状态（透传状态码）
+                  example: PBD-INPRORESS
+                updatePermissionTime:
+                  type: string
+                  description: 权限更新时间（可选，Unix 秒时间戳字符串）
+                  example: "1730000000"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{issueIdOrKey}/comments/{commentId}:
+    get:
+      tags: [Issues]
+      summary: 评论详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Issues]
+      summary: 删除评论
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/comment/attachment/{id}/{filename}:
+    get:
+      tags: [Issues]
+      summary: 获取附件内容（评论）
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: filename
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 文件内容
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /issue/attachment/{id}/{filename}:
+    get:
+      tags: [Issues]
+      summary: 获取附件内容
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: filename
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 文件内容
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /issue/{issueIdOrKey}/postmortem:
+    post:
+      tags: [Issues]
+      summary: Postmortem（可带附件）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                isGPUDropped:
+                  type: string
+                  description: 是否 GPU 掉卡（"1"=是，"0"=否）
+                  example: "1"
+                isLogNeeded:
+                  type: string
+                  description: 是否需要日志（透传）
+                  example: "1"
+                logCollectTime:
+                  type: string
+                  description: 日志收集时间（透传）
+                postmortemServerSn:
+                  type: string
+                  description: GPU 掉卡服务器 SN（isGPUDropped="0" 时服务端会清空）
+                postmortemFaultType:
+                  type: string
+                  description: 最终故障类型 code（透传）
+                postmortemMaintenanceOperation:
+                  type: string
+                  description: 最终维护操作（透传）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{issueIdOrKey}/manualFault:
+    post:
+      tags: [Issues]
+      summary: 人工故障（可带附件）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                commentBody:
+                  type: string
+                  description: 评论内容（可选）
+                fault_start_time:
+                  type: string
+                  description: 故障开始时间（透传）
+                fault_end_time:
+                  type: string
+                  description: 故障结束时间（透传）
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{issueIdOrKey}/manualConfirmResolved:
+    post:
+      tags: [Issues]
+      summary: 人工确认恢复（可带附件）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: issueIdOrKey
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                commentBody:
+                  type: string
+                  description: 评论内容（可选）
+                manual_confirm_resolved_time:
+                  type: string
+                  description: 人工确认恢复时间（Unix 秒时间戳字符串）
+                  example: "1730000000"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /issue/{idOrKey}/ticketRebootStatus:
+    get:
+      tags: [Issues]
+      summary: 获取 Ticket 自动重启状态
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - $ref: "#/components/parameters/IdOrKey"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /idcIssue:
+    post:
+      tags: [IDC Issues]
+      summary: 从 Issue 创建 IDC Issue
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /idcIssue/{id}/requestPermission:
+    post:
+      tags: [IDC Issues]
+      summary: 申请 RN 权限
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /idcIssue/{id}/cancelPermission:
+    post:
+      tags: [IDC Issues]
+      summary: 取消 RN 权限
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/alarm:
+    post:
+      tags: [OpenAPI]
+      summary: 创建告警工单
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/alarm/{alarmId}/recovery:
+    post:
+      tags: [OpenAPI]
+      summary: 告警恢复
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: alarmId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/issue:
+    get:
+      tags: [OpenAPI]
+      summary: 查询 Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [OpenAPI]
+      summary: 创建 Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/issue/{id}:
+    get:
+      tags: [OpenAPI]
+      summary: Issue 详情
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/issue/{id}/close:
+    post:
+      tags: [OpenAPI]
+      summary: 关闭 Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/rnIssue/{rnIssueId}/updateState:
+    post:
+      tags: [OpenAPI]
+      summary: 更新 RN Issue 状态
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: rnIssueId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue:
+    get:
+      tags: [OpenAPI]
+      summary: 查询 IDC Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [OpenAPI]
+      summary: 创建 IDC Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue/{id}:
+    get:
+      tags: [OpenAPI]
+      summary: IDC Issue 详情
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue/{id}/cancel:
+    post:
+      tags: [OpenAPI]
+      summary: 取消 IDC Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue/{id}/reopen:
+    post:
+      tags: [OpenAPI]
+      summary: 重开 IDC Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue/{id}/confirmResolve:
+    post:
+      tags: [OpenAPI]
+      summary: 确认恢复 IDC Issue
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/idcIssue/{id}/authorize:
+    post:
+      tags: [OpenAPI]
+      summary: 授权 IDC Issue 信息
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/serverOperation:
+    post:
+      tags: [OpenAPI]
+      summary: 服务器操作
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/systemDeploy:
+    post:
+      tags: [OpenAPI]
+      summary: 系统部署
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/faultIssue:
+    post:
+      tags: [OpenAPI]
+      summary: 创建故障工单
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/faultIssue/{id}/attachments:
+    post:
+      tags: [OpenAPI]
+      summary: 故障工单附件
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /open/upload-files:
+    post:
+      tags: [OpenAPI]
+      summary: OpenAPI 上传附件（multipart）
+      security:
+        - sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /user:
+    get:
+      tags: [Users]
+      summary: 用户列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Users]
+      summary: 创建用户（multipart，可带 files）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /user/{key}:
+    get:
+      tags: [Users]
+      summary: 获取用户信息
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /user/{username}:
+    put:
+      tags: [Users]
+      summary: 更新用户（multipart，可带 files）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Users]
+      summary: 删除用户
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /user/{username}/refreshToken:
+    put:
+      tags: [Users]
+      summary: 刷新用户 Token
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service:
+    get:
+      tags: [Services]
+      summary: 查询 Service（getService）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Services]
+      summary: 创建 Service
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/detail/{id}:
+    get:
+      tags: [Services]
+      summary: Service 详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/{id}:
+    put:
+      tags: [Services]
+      summary: 更新 Service
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Services]
+      summary: 删除 Service
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/list:
+    get:
+      tags: [Services]
+      summary: Service 分页列表（getServices）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/maintenanceSystem:
+    get:
+      tags: [Services]
+      summary: 获取维护系统列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/operationPermissions:
+    get:
+      tags: [Services]
+      summary: 获取操作权限列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service/relatedSN:
+    get:
+      tags: [Services]
+      summary: 获取关联 SN
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /priority:
+    get:
+      tags: [Priorities]
+      summary: 优先级列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /menu:
+    get:
+      tags: [Menus]
+      summary: 菜单列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Menus]
+      summary: 创建菜单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /menu/{id}:
+    get:
+      tags: [Menus]
+      summary: 菜单详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [Menus]
+      summary: 更新菜单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Menus]
+      summary: 删除菜单
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /menu/tree/all:
+    get:
+      tags: [Menus]
+      summary: 菜单树（全量）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role:
+    get:
+      tags: [Roles]
+      summary: 角色列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}:
+    get:
+      tags: [Roles]
+      summary: 角色详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [Roles]
+      summary: 更新角色
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Roles]
+      summary: 删除角色
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}/users:
+    post:
+      tags: [Roles]
+      summary: 添加用户到角色
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}/groups:
+    post:
+      tags: [Roles]
+      summary: 添加 Group 到角色
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}/users/{username}:
+    delete:
+      tags: [Roles]
+      summary: 删除角色用户
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}/groups/{groupName}:
+    delete:
+      tags: [Roles]
+      summary: 删除角色 Group
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: groupName
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /role/{roleId}/users/list:
+    get:
+      tags: [Roles]
+      summary: 获取角色下用户列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: roleId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /group:
+    get:
+      tags: [Groups]
+      summary: 组列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Groups]
+      summary: 创建组
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /group/{group_name}:
+    get:
+      tags: [Groups]
+      summary: 组详情
+      description: |
+        注意：当前代码中 `groupRoutes` 存在重复的 `GET /:group_name` 路由定义，后定义的“按角色取菜单”可能不可达。
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [Groups]
+      summary: 更新组
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Groups]
+      summary: 删除组
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /group/{group_name}/users:
+    get:
+      tags: [Groups]
+      summary: 组成员列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Groups]
+      summary: 添加用户到组
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /group/{group_name}/users/{username}:
+    delete:
+      tags: [Groups]
+      summary: 从组移除用户
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /group/{group_name}/tree:
+    get:
+      tags: [Groups]
+      summary: 角色菜单树（按 group_name）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: group_name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service-categories:
+    get:
+      tags: [Service Categories]
+      summary: 类目列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [Service Categories]
+      summary: 创建类目
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service-categories/{id}:
+    get:
+      tags: [Service Categories]
+      summary: 类目详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [Service Categories]
+      summary: 更新类目
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [Service Categories]
+      summary: 删除类目
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /sla-rules:
+    get:
+      tags: [SLA Rules]
+      summary: SLA 规则列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    post:
+      tags: [SLA Rules]
+      summary: 创建 SLA 规则
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /sla-rules/{id}:
+    get:
+      tags: [SLA Rules]
+      summary: SLA 规则详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    put:
+      tags: [SLA Rules]
+      summary: 更新 SLA 规则
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    delete:
+      tags: [SLA Rules]
+      summary: 删除 SLA 规则
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /sla-day/list:
+    get:
+      tags: [SLA Days]
+      summary: SLA Day 列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /sla-day/refresh:
+    post:
+      tags: [SLA Days]
+      summary: 刷新 SLA Day
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service-fault-types:
+    get:
+      tags: [Service Fault Types]
+      summary: 故障类型列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /service-fault-types/getFromRn:
+    get:
+      tags: [Service Fault Types]
+      summary: 故障类型列表（从 RN）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /final-service-fault-types:
+    get:
+      tags: [Final Service Fault Types]
+      summary: 最终故障类型列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /final-service-fault-types/getFromRn:
+    get:
+      tags: [Final Service Fault Types]
+      summary: 最终故障类型列表（从 RN）
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /alert/{id}:
+    get:
+      tags: [Alerts]
+      summary: 告警详情
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /downtimeRecord/list:
+    get:
+      tags: [Downtime Records]
+      summary: 宕机记录列表
+      security:
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_appkey: []
+        - bearerAuth: []
+          sig_timestamp: []
+          sig_nonce: []
+          sig_signature: []
+          sig_client_id: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+components:
+  parameters:
+    IdOrKey:
+      in: path
+      name: idOrKey
+      required: true
+      schema:
+        type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    sig_timestamp:
+      type: apiKey
+      in: header
+      name: timestamp
+      description: 毫秒时间戳（Number）
+    sig_nonce:
+      type: apiKey
+      in: header
+      name: nonce
+      description: 随机字符串，需避免重复（防重放）
+    sig_signature:
+      type: apiKey
+      in: header
+      name: signature
+      description: HMAC-SHA256 hex（详见服务端签名算法）
+    sig_appkey:
+      type: apiKey
+      in: header
+      name: appkey
+      description: App Key（部分接口兼容使用 client-id）
+    sig_client_id:
+      type: apiKey
+      in: header
+      name: client-id
+      description: OpenAPI Client ID（也可作为 appkey 的兼容头）
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+          nullable: true
+        data:
+          nullable: true
+          description: 具体返回数据，结构随接口而变
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: array
+              items: {}
+            - type: string
+            - type: number
+            - type: boolean
+    IssueCreateRequest:
+      type: object
+      description: 创建工单请求体（对应 IssuePayload）
+      required: [summary, description, service, priority]
+      properties:
+        summary:
+          type: string
+          description: 标题（必填）
+          example: "服务器异常"
+        description:
+          type: string
+          description: 描述（必填）
+          example: "xxx 服务不可用，影响范围..."
+        service:
+          type: string
+          description: 服务类型（必填）
+          example: "SERVER"
+        priority:
+          type: string
+          description: 优先级（必填）
+          example: "P1"
+        impactLevel:
+          type: string
+          description: 影响等级（可选）
+        alarmId:
+          type: string
+          description: 告警 ID（可选）
+        relativeIssueId:
+          type: string
+          description: 关联工单 ID（可选）
+        authorizedChangeContent:
+          type: string
+          description: 授权变更内容（可选）
+        issuetype:
+          type: string
+          description: 工单类型（可选）
+        reporter:
+          type: string
+          description: 提单人（可选）
+        assignee:
+          type: string
+          description: 处理人（可选）
+        snCode:
+          type: string
+          description: SN Code（可选）
+        relatedSN:
+          type: string
+          description: 关联 SN（可选）
+        serverSn:
+          type: string
+          description: 服务器 SN（可选）
+        networkSn:
+          type: string
+          description: 网络设备 SN（可选）
+        faultType:
+          type: string
+          description: 故障类型 code（可选）
+        isDown:
+          type: boolean
+          description: 是否宕机（可选）
+        syncToCustomer:
+          type: boolean
+          description: 是否同步到客户（可选）
+        maintenanceOperation:
+          type: string
+          description: 维护操作（可选）
+        operationPermissions:
+          type: string
+          description: 操作权限（可选）
+        estimatedStartDate:
+          type: string
+          description: 预计开始时间（可选）
+        status:
+          type: string
+          description: 状态（可选）
+      additionalProperties: true
+    IssueUpdateRequest:
+      type: object
+      description: 更新工单请求体（对应 IssueUpdatePayload，建议至少传 comment）
+      required: [comment]
+      properties:
+        comment:
+          type: string
+          description: 修改说明（必填，IssueUpdatePayload 要求）
+          example: "更新处理人/状态"
+      additionalProperties: true
+    IssueAssignRequest:
+      type: object
+      required: [assignee]
+      properties:
+        assignee:
+          type: string
+          description: 指派给的用户名（必填）
+      additionalProperties: false
+    IssueChangeStateRequest:
+      type: object
+      required: [stateId]
+      properties:
+        stateId:
+          type: string
+          description: 目标状态 ID（必填）
+        stateName:
+          type: string
+          description: 目标状态名称（可选）
+      additionalProperties: false
+    IssueExportRequest:
+      type: object
+      description: 导出工单请求体（在 IssueQueryPayload 基础上，额外要求 fields）
+      required: [fields]
+      properties:
+        fields:
+          type: array
+          items: { type: string }
+          description: 导出字段 key 列表（必填，且必须在服务端允许范围内）
+          example: ["key", "summary", "status"]
+      additionalProperties: true

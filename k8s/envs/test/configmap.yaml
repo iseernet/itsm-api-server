@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: itsm-api-server-test-config
+  namespace: pbd-test
+  labels:
+    app: itsm-api-server-test
+    environment: test
+data:
+  # 应用配置
+  NODE_ENV: "qa"
+  PORT: "3000"
+  SERVER_PORT: "3000"
+
+  # 数据库配置（测试环境）
+  DB_HOST: "3.107.213.122"
+  DB_PORT: "5432"
+  DB_NAME: "itsm_db"
+
+  # DB2 配置（第二个数据库）
+  # 注意：DB2_USER 和 DB2_PASSWORD 在 Secret 中配置
+  DB2_HOST: "10.137.208.60"
+  DB2_PORT: "5432"
+  DB2_NAME: "monitor_pt"
+
+  # Redis 配置
+  # 注意：REDIS_PASSWORD 在 Secret 中配置
+  REDIS_HOST: "10.137.208.60"
+  REDIS_PORT: "6380"
+  REDIS_DB: "10"
+
+  # Jira 配置（测试环境）
+  JIRA_BASE_URL: "http://3.107.213.122:8080"
+  JIRA_PROJECT_KEY: "ISTMDEV"
+  JIRA_USER_RN: "rn-dev"
+  JIRA_USER_ALARM: "alarm-dev"
+  JIRA_USER_ONSITE_OPS: "onsite-ops-dev"
+  JIRA_USER_ONCALL_OPS: "oncall-ops-dev"
+  JIRA_ROLE: "Service Desk Team"
+
+  # Jira 自定义字段 ID（测试环境）
+  jira_alarmId: "customfield_10123"
+  jira_service: "customfield_10124"
+  jira_impactLevel: "customfield_10125"
+  jira_authorizedChangeContent: "customfield_10126"
+  jira_relativeIssueId: "customfield_10127"
+  jira_snCode: "customfield_10128"
+  jira_isDown: "customfield_10129"
+  jira_relatedSN: "customfield_10130"
+  jira_syncToCustomer: "customfield_10131"
+  jira_maintenanceOperation: "customfield_10132"
+  jira_operationPermissions: "customfield_10133"
+  jira_estimatedStartDate: "customfield_10136"
+  jira_rackID: "customfield_10137"
+  jira_dueAt: "customfield_10138"
+  jira_bootType: "customfield_10139"
+  jira_cleanDataDisk: "customfield_10142"
+  jira_os: "customfield_10141"
+  jira_authorized: "customfield_10143"
+  jira_authorizedAt: "customfield_10144"
+  jira_serverSn: "customfield_10145"
+  jira_networkSn: "customfield_10146"
+  jira_faultType: "customfield_10147"
+  jira_rnTicketId: "customfield_10148"
+  jira_relatedComponents: "customfield_10149"
+  jira_idcSubType: "customfield_10163"
+  jira_newSn: "customfield_10164"
+  jira_networkDevice: "customfield_10165"
+  jira_postmortem_is_gpu_down: "customfield_10172"
+  jira_postmortem_server_sn: "customfield_10174"
+  jira_postmortem_need_log: "customfield_10173"
+  jira_postmortem_time: "customfield_10175"
+  jira_collect_log_time: "customfield_10166"
+  jira_collect_log_upload_image: "customfield_10167"
+  jira_fault_start_time: "customfield_10170"
+  jira_fault_start_time_upload_image: "customfield_10171"
+  jira_fault_end_time: "customfield_10168"
+  jira_fault_end_time_upload_image: "customfield_10169"
+  jira_manual_confirm_resolved_time: "customfield_10176"
+  jira_manual_confirm_resolved_upload_image: "customfield_10177"
+  jira_order_response_time: "customfield_10178"
+  jira_pbd_finish_time: "customfield_10179"
+  jira_rn_confirm_resolved_time: "customfield_10180"
+  jira_rn_fault_id: "customfield_10181"
+  jira_isNetworkEffectServer: "customfield_10182"
+  jira_postmortem_fault_type: "customfield_10183"
+  jira_postmortem_maintenance_operation: "customfield_10184"
+  jira_pbd_finish_timestamp: "customfield_10185"
+  jira_confirm_resolved_timestamp: "customfield_10186"
+
+  # JWT 配置（测试环境）
+  JWT_ACCESS_TOKEN_EXPIRES_IN: "200m"
+  JWT_REFRESH_TOKEN_EXPIRES_IN: "7d"
+
+  # 验签配置
+  ALLOWED_TIME_DRIFT_MS: "300000"
+
+  # 上传文件配置
+  UPLOAD_DIR: "uploads/"
+
+  # RN 配置（测试环境）
+  RN_API_URL: "openapi/v1"
+  RN_API_SECRET_ID: ""
+  RN_API_ENABLED: "0"
+
+  # Feishu 配置（测试环境）
+  FEISHU_APP_ID: "cli_a83b9180263b501c"
+  FEISHU_API_URL: "https://open.feishu.cn/open-apis"
+  FEISHU_MESSAGE_ISSUE_URL: "https://itsm-dev.palebluedot.top/eventDetail/"
+  FEISHU_MESSAGE_IDC_ISSUE_URL: "https://itsm-dev.palebluedot.top/idcTicketDetail/"
+
+  # PBD Alert 配置（测试环境）
+  PBD_ALERT_BASE_URL: "http://10.137.208.200:8081/api/v1"

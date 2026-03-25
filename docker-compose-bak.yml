@@ -1,0 +1,45 @@
+services:
+  jira:
+    image: atlassian/jira-servicemanagement:10.4.1
+    container_name: jira_service_management_prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - jira_data:/var/atlassian/application-data/jira
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - JVM_MAXIMUM_MEMORY=8192m
+      - JVM_MINIMUM_MEMORY=2048m      
+      - JIRA_DATABASE_URL=jdbc:postgresql://postgres_db:5432/jiradb
+      - JIRA_DATABASE_PASSWORD=zd7bn762JTea0R+9nFioWNFh73k
+      - JIRA_PORT=8080
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:14
+    container_name: jira_postgres
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=jiradb
+      - POSTGRES_USER=jirauser
+      - POSTGRES_PASSWORD=zd7bn762JTea0R+9nFioWNFh73k
+  nginx:
+    image: nginx:stable-alpine
+    container_name: jira_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - jira
+
+volumes:
+  jira_data:
+  postgres_data:

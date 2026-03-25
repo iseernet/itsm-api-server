@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: itsm-api-server-prod
+  namespace: pbd-services
+  labels:
+    app: itsm-api-server-prod
+    environment: production
+    project: itsm-api-server
+  annotations:
+    description: "ITSM API Server 生产环境"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: itsm-api-server-prod
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: itsm-api-server-prod
+        environment: production
+        project: itsm-api-server
+    spec:
+      containers:
+        - name: itsm-api-server-prod
+          image: 10.137.208.6:19800/pbdcommon/itsm-api-server-prod:v1.0.0
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+          envFrom:
+            - configMapRef:
+                name: itsm-api-server-prod-config
+                optional: false
+            - secretRef:
+                name: itsm-api-server-prod-secret
+                optional: false
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+          # 可选: 挂载持久化存储（文件上传目录）
+          # volumeMounts:
+          #   - name: uploads
+          #     mountPath: /app/uploads
+      imagePullSecrets:
+        - name: docker-secret
+      restartPolicy: Always
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - itsm-api-server-prod
+                topologyKey: kubernetes.io/hostname
+      # 可选: 持久化存储卷
+      # volumes:
+      #   - name: uploads
+      #     persistentVolumeClaim:
+      #       claimName: itsm-api-server-prod-pvc
